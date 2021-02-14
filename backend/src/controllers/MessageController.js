@@ -1,34 +1,46 @@
 const { uuid } = require('uuidv4');
 
-let messages = [
-	{
-		id: uuid(),
-		message: 'Bem vindo ao servidor Multichat',
-		author: 'multichat',
-		timestamp: new Date(),
-	},
-];
+const welcomeMessage = {
+	id: uuid(),
+	message: 'Bem vindo ao servidor Multichat',
+	author: 'multichat',
+	timestamp: new Date(),
+};
 
-module.exports = {
+let messages = new Map();
+
+class MessageController {
 	async index(req, res) {
-		return res.json(messages);
-	},
+		const { room = 'multichat' } = req.query;
+		let current = messages.get(room);
+
+		if (!current) {
+			messages.set(room, [welcomeMessage]);
+		}
+
+		return res.json(messages.get(room));
+	}
 
 	async store(req, res) {
+		const { room = 'multichat' } = req.body;
+		let current = messages.get(room);
+
 		const newMessage = {
 			id: uuid(),
 			...req.body,
 			timestamp: new Date(),
 		};
 
-		messages.push(newMessage);
+		const newMessages = [...current, newMessage];
 
-		// req.io.sockets.in('multichat').emit('sent-message', newMessage);
+		messages.set(room, newMessages);
 
-		req.io.sockets.in('multichat').emit('received-message', messages);
+		current = newMessages;
+
+		req.io.sockets.in(room).emit('received-message', current);
 
 		return res.json(newMessage);
+	}
+}
 
-		console.log(error);
-	},
-};
+module.exports = new MessageController();

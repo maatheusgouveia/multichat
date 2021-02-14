@@ -18,7 +18,12 @@ function Message({ message, sent, received }) {
 				className={`message
 			${sent ? 'sent' : ''} ${received ? 'received' : ''}`}
 			>
-				<Typography>{content}</Typography>
+				<Typography variant="subtitle2" style={{ fontWeight: 'bold' }}>
+					{message.author}
+				</Typography>
+
+				<pre>{content}</pre>
+
 				<Typography variant="caption" align="right">
 					{formatDistanceToNow(new Date(timestamp), {
 						addSuffix: true,
