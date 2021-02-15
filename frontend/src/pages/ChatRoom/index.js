@@ -15,30 +15,21 @@ export default function App() {
 
 	const [messages, setMessages] = useState([]);
 	const [content, setContent] = useState('');
-	const [currentUser, setCurrentUser] = useState(() => {
-		return localStorage.getItem('@multichat/current-user');
-	});
+	const [currentUser, setCurrentUser] = useState(() =>
+		JSON.parse(localStorage.getItem('@multichat/current-user'))
+	);
 
 	const setupSocket = useCallback(async () => {
 		const io = await socket();
 
 		io.emit('connect-room', room);
 
-		// io.on('sent-message', data => {
-		// 	console.log('sent');
-		// 	setMessages([...messages, data]);
-
-		// 	if (Notification.permission === 'granted') {
-		// 		new Notification(data.message);
-		// 	}
-		// });
-
 		io.on('received-message', data => {
 			setMessages(data);
 
 			const lastMessage = data[data.length - 1];
 
-			if (lastMessage.author !== currentUser) {
+			if (lastMessage.author !== currentUser.username) {
 				if (Notification.permission === 'granted') {
 					new Notification(lastMessage.message);
 				}
@@ -66,6 +57,7 @@ export default function App() {
 
 	useEffect(() => {
 		setupSocket();
+		Notification.requestPermission();
 	}, []);
 
 	async function handleSubmit(e) {
@@ -73,7 +65,7 @@ export default function App() {
 
 		const newMessage = {
 			message: content,
-			author: currentUser,
+			author: currentUser.username,
 			room,
 		};
 
@@ -91,15 +83,15 @@ export default function App() {
 			direction="column"
 			justify="space-between"
 			alignItems="center"
-			style={{ paddingBottom: 180 }}
+			style={{ paddingBottom: 170 }}
 		>
 			<Grid item style={{ width: '100%' }}>
 				{messages.map(message => (
 					<Message
 						key={message.id}
 						message={message}
-						sent={message.author === currentUser}
-						received={message.author !== currentUser}
+						sent={message.author === currentUser.username}
+						received={message.author !== currentUser.username}
 					/>
 				))}
 			</Grid>
@@ -115,16 +107,16 @@ export default function App() {
 						required
 						onChange={e => setContent(e.target.value)}
 						value={content}
-						disabled={!currentUser}
+						disabled={!currentUser.id}
 					/>
 
-					{currentUser && (
-						<IconButton type="submit" disabled={!currentUser}>
+					{currentUser.id && (
+						<IconButton type="submit" disabled={!currentUser.id}>
 							<MdSend />
 						</IconButton>
 					)}
 
-					{!currentUser && (
+					{!currentUser.id && (
 						<AuthDialog setCurrentUser={setCurrentUser} />
 					)}
 				</Grid>
