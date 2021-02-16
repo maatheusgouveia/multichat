@@ -92,7 +92,10 @@ export default function App() {
 			alignItems="center"
 			style={{ paddingBottom: 170 }}
 		>
-			<Fab style={{ position: 'fixed', top: 10 }} onClick={handleLogoff}>
+			<Fab
+				style={{ position: 'fixed', top: 10, right: 10 }}
+				onClick={handleLogoff}
+			>
 				<FaPowerOff />
 			</Fab>
 
