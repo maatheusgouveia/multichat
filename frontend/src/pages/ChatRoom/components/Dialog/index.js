@@ -10,6 +10,9 @@ import {
 } from '@material-ui/core';
 import { FiLogIn } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns';
+import ptBr from 'date-fns/locale/pt-BR';
 
 import api from '../../../../services/api';
 
@@ -57,10 +60,13 @@ export default function AuthDialog({ setCurrentUser }) {
 				onClose={handleClose}
 				aria-labelledby="form-dialog-title"
 			>
-				<DialogTitle id="form-dialog-title">Identifique-se</DialogTitle>
+				<DialogTitle id="form-dialog-title">
+					Identifique-se para poder interagir
+				</DialogTitle>
+
 				<DialogContent>
 					<TextField
-						className="text-field"
+						className="field"
 						autoFocus
 						fullWidth
 						disabled
@@ -73,7 +79,7 @@ export default function AuthDialog({ setCurrentUser }) {
 					/>
 
 					<TextField
-						className="text-field"
+						className="field"
 						autoFocus
 						fullWidth
 						id="email"
@@ -85,19 +91,34 @@ export default function AuthDialog({ setCurrentUser }) {
 						value={user.email || ''}
 					/>
 
-					<TextField
-						className="text-field"
-						autoFocus
-						fullWidth
-						id="birth_date"
-						label="Data de nascimento"
-						type="date"
-						onChange={e =>
-							setUser({ ...user, [e.target.id]: e.target.value })
-						}
-						value={user.birth_date || ''}
-					/>
+					<MuiPickersUtilsProvider
+						className="field"
+						utils={DateFnsUtils}
+						locale={ptBr}
+					>
+						<DatePicker
+							autoOk
+							variant="inline"
+							clearable
+							disableFuture
+							format="dd/MM/yyyy"
+							InputAdornmentProps={{ position: 'start' }}
+							onChange={date =>
+								setUser({
+									...user,
+									birth_date: date,
+								})
+							}
+							required
+							fullWidth
+							label="Data de nascimento"
+							id="birth_date"
+							value={user.birth_date || null}
+							invalidDateMessage="Data inválida"
+						/>
+					</MuiPickersUtilsProvider>
 				</DialogContent>
+
 				<DialogActions>
 					<Button onClick={handleClose} color="primary">
 						Cancelar

@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Grid, TextareaAutosize, IconButton } from '@material-ui/core';
+import { Grid, TextareaAutosize, IconButton, Fab } from '@material-ui/core';
 import { MdSend } from 'react-icons/md';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { FaPowerOff } from 'react-icons/fa';
+
+import api from '../../services/api';
+import socket from '../../services/socket';
+import Message from '../../components/Message';
 
 import AuthDialog from './components/Dialog';
 
-import Message from '../../components/Message';
-import api from '../../services/api';
-import socket from '../../services/socket';
-
 export default function App() {
+	const history = useHistory();
 	const { room } = useParams();
 
 	const [messages, setMessages] = useState([]);
@@ -76,6 +78,11 @@ export default function App() {
 		setContent('');
 	}
 
+	function handleLogoff() {
+		localStorage.clear();
+		history.push('/welcome');
+	}
+
 	return (
 		<Grid
 			id="app"
@@ -85,6 +92,10 @@ export default function App() {
 			alignItems="center"
 			style={{ paddingBottom: 170 }}
 		>
+			<Fab style={{ position: 'fixed', top: 10 }} onClick={handleLogoff}>
+				<FaPowerOff />
+			</Fab>
+
 			<Grid item style={{ width: '100%' }}>
 				{messages.map(message => (
 					<Message
